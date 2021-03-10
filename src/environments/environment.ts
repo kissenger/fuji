@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  STRAVA_CLIENT_ID: '62854',
+  STRAVA_CLIENT_SECRET: '1ec37393090c7e3eae607d85abfda4926914977a'
 };
 
 /*
