@@ -7,16 +7,17 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class HttpService {
 
+  private backendDomain = 'http://localhost:4200';
   private stravaApiUrl = 'https://www.strava.com/';
-
   private stravaClientId = environment.STRAVA_CLIENT_ID;
   private stravaClientSecret = environment.STRAVA_CLIENT_SECRET;
+  public stravaAuthUrl = `${this.stravaApiUrl}/oauth/authorize?client_id=${this.stravaClientId}` +
+      `&redirect_uri=${this.backendDomain}&response_type=code&scope=activity:read`;
 
   constructor(
     private http: HttpClient,
     private error: ErrorService
   ) {}
-
 
 
   stravaGetToken(authCode: string) {

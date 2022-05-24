@@ -1,6 +1,7 @@
+import { AuthService } from './../services/auth.service';
 import { HttpService } from './../services/http.service';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -11,11 +12,12 @@ import { environment } from 'src/environments/environment';
 
 export class MainComponent implements OnInit {
 
-  private stravaClientId = environment.STRAVA_CLIENT_ID;
 
   constructor(
     private http: HttpService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    public auth: AuthService
    ) {}
 
   ngOnInit() {
@@ -23,51 +25,43 @@ export class MainComponent implements OnInit {
     this.activatedRoute.queryParams.subscribe( (params) => {
 
       if (params.code) {
+        console.log(params.code);
 
         this.http.stravaGetToken(params.code).subscribe(
           (token) => {
-            console.log(token);
 
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setMonth(endDate.getMonth() - 3);
+            this.auth.token = token.access_token;
+            this.router.navigate(['']);
 
-            this.http.stravaListActivities(endDate, startDate, token.access_token).subscribe(
-              (activities) => {
-                console.log(activities);
-              }
-            );
           }
         );
 
       }
+
     });
   }
 
-  onBtnClick() {
+  onAuthClick() {
+    // redirect to strava API authorisation
+    window.location.replace(this.http.stravaAuthUrl);
+  }
 
-    window.location.href =
-      `https://www.strava.com/oauth/authorize?client_id=${this.stravaClientId}` +
-      '&redirect_uri=http://localhost:4200&response_type=code&scope=activity:read';
+  onDeAuthClick() {
+    this.auth.deauthorise();
+    this.router.navigate(['']);
+  }
 
-    // https://www.strava.com/oauth/authorize?
-    // client_id=YOUR_CLIENT_ID&
-    // redirect_uri=YOUR_CALLBACK_DOMAIN&
-    // response_type=code&
-    // scope=YOUR_SCOPE
+  onGetClick() {
 
-    // console.log('click');
-    // const endDate = new Date();
-    // const startDate = new Date();
-    // startDate.setMonth(endDate.getMonth() - 3);
-    // console.log(endDate, startDate);
-    // this.http.stravaListActivities(endDate, startDate).subscribe(
-    //   (response) => { console.log(response); },
-    //   (error) => {
-    //     // console.log(error);
-    //     // this.alert.showAsElement(`${error.name}: ${error.name} `, error.message, true, false).subscribe( () => {});
-    //   }
-    // );
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(endDate.getMonth() - 3);
+
+    this.http.stravaListActivities(endDate, startDate, this.auth.token).subscribe(
+      (activities) => {
+        console.log(activities);
+      }
+    );
   }
 
 

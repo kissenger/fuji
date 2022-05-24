@@ -1,2 +1,7 @@
 
-<button class="btn" type="button" (click)="onBtnClick()">Get Activities</button>
+<span>Authorised: {{!!auth.token}}</span>
+<p>
+<button *ngIf="!auth.token" class="btn" type="button" (click)="onAuthClick()">Authorise</button>
+<button *ngIf="!!auth.token" class="btn" type="button" (click)="onDeAuthClick()">Deauthorise</button>
+<p>
+<button class="btn" type="button" [disabled]="!auth.token" (click)="onGetClick()">Get Activities</button>
